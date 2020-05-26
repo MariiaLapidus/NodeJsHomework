@@ -45,6 +45,7 @@
 //----------------------callback----------------
 const path = require('path');
 const fs = require('fs');
+// const fsp = require('fs').promises;
 
 function swap(folderFrom, folderTo) {
     const directoryFrom = path.join(__dirname, folderFrom);
@@ -84,18 +85,41 @@ const copyFile = (directoryFrom, directoryTo) => new Promise((resolve, reject) =
         resolve(files);
     })
 }).then(files => new Promise((resolve, reject) => {
-    // console.log(files);
+    const promises = [];
+    console.log('1');
     for (const file of files) {
-        fs.rename(
-            path.join(directoryFrom, file),
-            path.join(directoryTo, file),
-            err => {
-                if (err) reject (err)
-            }
-        )
+        console.log('2');
+        promises.push(moveFile(directoryFrom, directoryTo, file));
+        console.log('3');
     }
-    resolve();
+    console.log('4');
+    Promise.all(promises).then(() => {
+        console.log('FINISHED MOVED AND GOINT TO NEXT COPY FILE');
+        resolve()
+    });
 }));
+
+const moveFile = (directoryFrom, directoryTo, file) => new Promise((resolve, reject) => {
+    fs.rename(path.join(directoryFrom, file), path.join(directoryTo, file), err => {
+        if (err) reject(err);
+        console.log('MOVED FILE');
+        resolve();
+    });
+});
+
+
+//     // console.log(files);
+//     for (const file of files) {
+//         fs.rename(
+//             path.join(directoryFrom, file),
+//             path.join(directoryTo, file),
+//             err => {
+//                 if (err) reject (err)
+//             }
+//         )
+//     }
+//     resolve();
+// }));
 
 swap('students-18.00', 'students-20.00')
 //----------------------promises---------------
